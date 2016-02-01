@@ -2,13 +2,13 @@ package com.leukim.lmb;
 
 import com.leukim.lmb.commands.*;
 import com.leukim.lmb.database.EventDatabase;
+import com.leukim.lmb.database.SQLiteDatabase;
 import org.telegram.telegrambots.TelegramApiException;
 import org.telegram.telegrambots.api.methods.SendMessage;
 import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.api.objects.Update;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 
-import java.io.IOException;
 
 /**
  * Telegram bot that provides an event management system for groups.
@@ -19,8 +19,8 @@ public class LetsMeetBot extends TelegramLongPollingBot {
 
     private EventDatabase database;
 
-    public LetsMeetBot(String filePath) throws IOException {
-        this.database = new EventDatabase(filePath);
+    public LetsMeetBot() throws TelegramApiException {
+        this.database = new SQLiteDatabase();
     }
 
     @Override
