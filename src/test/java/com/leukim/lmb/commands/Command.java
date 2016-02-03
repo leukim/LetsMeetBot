@@ -1,5 +1,6 @@
 package com.leukim.lmb.commands;
 
+import com.leukim.lmb.Services;
 import com.leukim.lmb.database.EventDatabase;
 import org.telegram.telegrambots.api.methods.SendMessage;
 import org.telegram.telegrambots.api.objects.Message;
@@ -26,8 +27,8 @@ public abstract class Command {
     Command() {
     }
 
-    public void set(EventDatabase database, List<String> params, Message message, SendMessage reply) {
-        this.database = database;
+    public void set(List<String> params, Message message, SendMessage reply) {
+        this.database = Services.getInstance().getDatabase();
         this.params = params;
         this.reply = reply;
         this.message = message;

@@ -18,7 +18,7 @@ public class DeleteCommand extends Command {
     @Override
     public SendMessage execute() {
         if (!checkParams()) {
-            return sendMessage("Wrong usage. Use /delete <event name>");
+            return sendMessage("Wrong usage. Use /delete [event name]");
         }
 
         if (!hasIDParam()) {

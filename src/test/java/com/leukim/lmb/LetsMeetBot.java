@@ -1,14 +1,13 @@
 package com.leukim.lmb;
 
 import com.leukim.lmb.commands.*;
-import com.leukim.lmb.database.EventDatabase;
-import com.leukim.lmb.database.SQLiteDatabase;
+import com.leukim.lmb.state.BotStatus;
+import com.leukim.lmb.state.Conversation;
 import org.telegram.telegrambots.TelegramApiException;
 import org.telegram.telegrambots.api.methods.SendMessage;
 import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.api.objects.Update;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
-
 
 /**
  * Telegram bot that provides an event management system for groups.
@@ -17,22 +16,31 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot;
  */
 public class LetsMeetBot extends TelegramLongPollingBot {
 
-    private EventDatabase database;
+    private BotStatus status;
 
-    public LetsMeetBot() throws TelegramApiException {
-        this.database = new SQLiteDatabase();
+
+    public LetsMeetBot() {
+        this.status = new BotStatus();
     }
 
     @Override
     public void onUpdateReceived(Update update) {
         if (update.hasMessage()) {
             Message message = update.getMessage();
+            SendMessage reply;
             if (message.hasText()) {
-                try {
-                    handleCommand(message);
-                } catch (TelegramApiException e) {
-                    e.printStackTrace();
-                }
+                Long chatID = message.getChatId();
+                Conversation conversation = status.getConversationOrNew(chatID);
+                reply = conversation.process(message);
+            } else {
+                reply = new SendMessage();
+                reply.setChatId(message.getChatId().toString());
+                reply.setText("Only text messages are supported.");
+            }
+            try {
+                sendMessage(reply);
+            } catch (TelegramApiException e) {
+                e.printStackTrace();
             }
         }
     }
@@ -48,7 +56,7 @@ public class LetsMeetBot extends TelegramLongPollingBot {
     }
 
     private void handleCommand(Message message) throws TelegramApiException {
-        Command command = CommandBuilder.make(database, message);
+        Command command = CommandBuilder.make(message);
         SendMessage reply = command.execute();
         if (reply != null) {
             sendMessage(reply);

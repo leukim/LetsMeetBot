@@ -1,6 +1,5 @@
 package com.leukim.lmb.commands;
 
-import com.leukim.lmb.database.EventDatabase;
 import org.telegram.telegrambots.api.methods.SendMessage;
 import org.telegram.telegrambots.api.objects.Message;
 
@@ -33,11 +32,11 @@ public enum CommandBuilder {
         executor = executorClass;
     }
 
-    private void set(EventDatabase database, List<String> params, Message message, SendMessage reply) {
-        executor.set(database, params, message, reply);
+    private void set(List<String> params, Message message, SendMessage reply) {
+        executor.set(params, message, reply);
     }
 
-    public static Command make(EventDatabase database, Message message) {
+    public static Command make(Message message) {
         if (!message.hasText()) {
             return CommandBuilder.UNKNOWN.executor;
         }
@@ -65,7 +64,7 @@ public enum CommandBuilder {
         } catch (IllegalArgumentException e) {
             commandBuilder = CommandBuilder.UNKNOWN;
         }
-        commandBuilder.set(database, params, message, reply);
+        commandBuilder.set(params, message, reply);
         return commandBuilder.executor;
     }
 }
