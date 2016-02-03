@@ -18,7 +18,7 @@ public class CreateCommand extends Command {
 
         String name = params.get(0);
 
-        Event event = Event.create(name, senderID, senderUsername);
+        Event event = Event.create(null, name, senderID, senderUsername);
         boolean success = database.add(event);
         if (success) {
             reply.setText("Created event " + event.getName());

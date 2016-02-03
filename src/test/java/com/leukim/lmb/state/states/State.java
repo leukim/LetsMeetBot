@@ -7,12 +7,15 @@ import org.apache.commons.lang3.StringUtils;
 import org.telegram.telegrambots.api.objects.Message;
 
 import java.util.List;
+import java.util.Map;
 import java.util.StringTokenizer;
 
 /**
  * Created by miquel on 03/02/16.
  */
 public abstract class State {
+    Map<String, String> params;
+
     public abstract Result process(Message message);
 
     Command parseMessage(Message message) {
@@ -45,5 +48,13 @@ public abstract class State {
 
     private boolean isCommand(String message) {
         return StringUtils.startsWith(message, "/");
+    }
+
+    public Map<String, String> getParams() {
+        return params;
+    }
+
+    public void setParams(Map<String, String> params) {
+        this.params = params;
     }
 }

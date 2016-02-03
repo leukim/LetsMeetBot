@@ -15,7 +15,7 @@ public class CreateEventExecutor extends CommandExecutor {
 
     @Override
     public Result execute(Command command) {
-        Event event = Event.create(command.message.getText(), command.message.getFrom().getId().toString(), command.message.getFrom().getUserName());
+        Event event = Event.create(null,command.message.getText(), command.message.getFrom().getId().toString(), command.message.getFrom().getUserName());
         EventDatabase database = Services.getInstance().getDatabase();
         boolean success = database.add(event);
         SendMessage reply;

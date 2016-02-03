@@ -3,6 +3,7 @@ package com.leukim.lmb.state.states;
 import com.leukim.lmb.state.Command;
 import com.leukim.lmb.state.Result;
 import com.leukim.lmb.state.states.executors.CommandExecutor;
+import com.leukim.lmb.state.states.executors.DeleteListExecutor;
 import com.leukim.lmb.state.states.executors.ListCommandExecutor;
 import com.leukim.lmb.state.states.executors.StartCommandExecutor;
 import org.telegram.telegrambots.api.methods.SendMessage;
@@ -34,6 +35,9 @@ public class InitialState extends State {
                         return new Result(nextState, reply);
                     }
                 };
+                break;
+            case DELETE:
+                executor = new DeleteListExecutor();
                 break;
             default:
                 // TODO Remove this when all commands are reimplemented

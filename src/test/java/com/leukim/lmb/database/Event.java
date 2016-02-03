@@ -8,6 +8,7 @@ import java.util.StringTokenizer;
  * Created by miquel on 30/01/16.
  */
 public class Event{
+    private String id;
     private String name;
     private String ownerID;
     private String ownerUsername;
@@ -48,12 +49,17 @@ public class Event{
         return event;
     }
 
-    public static Event create(String name, String ownerID, String ownerUsername) {
+    public static Event create(String id, String name, String ownerID, String ownerUsername) {
         Event event = new Event();
+        event.id = id;
         event.name = name;
         event.ownerID = ownerID;
         event.ownerUsername = ownerUsername;
         return event;
+    }
+
+    public String getId() {
+        return id;
     }
 
     public String getName() {

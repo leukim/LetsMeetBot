@@ -143,10 +143,11 @@ public class SQLiteDatabase implements EventDatabase {
     }
 
     private Event make(ResultSet rs) throws SQLException {
+        String id = rs.getString("id");
         String name = rs.getString("name");
         String ownerId = rs.getString("ownerID");
         String ownerUsername = rs.getString("ownerUsername");
 
-        return Event.create(name, ownerId, ownerUsername);
+        return Event.create(id, name, ownerId, ownerUsername);
     }
 }
