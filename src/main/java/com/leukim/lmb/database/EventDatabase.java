@@ -11,13 +11,9 @@ import java.util.Optional;
 public interface EventDatabase {
     Optional<Event> get(int id);
 
-    Optional<Event> get(String name);
-
     boolean add(Event event);
 
     boolean delete(int id);
-
-    boolean delete(String name);
 
     List<Event> list();
 

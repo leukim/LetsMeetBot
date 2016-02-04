@@ -1,6 +1,6 @@
 package com.leukim.lmb.database;
 
-import jersey.repackaged.com.google.common.collect.Lists;
+import com.google.common.collect.Lists;
 import org.telegram.telegrambots.TelegramApiException;
 
 import java.sql.*;
@@ -53,23 +53,6 @@ public class SQLiteDatabase implements EventDatabase {
     }
 
     @Override
-    public Optional<Event> get(String name) {
-        try {
-            Statement statement = connection.createStatement();
-            ResultSet rs = statement.executeQuery("SELECT * FROM Events WHERE name='"+name+"'");
-
-            if (rs.next()) {
-                Event event = make(rs);
-                return Optional.of(event);
-            }
-
-        } catch (SQLException e) {
-            return Optional.empty();
-        }
-        return Optional.empty();
-    }
-
-    @Override
     public boolean add(Event event) {
         try {
             Statement statement = connection.createStatement();
@@ -85,17 +68,6 @@ public class SQLiteDatabase implements EventDatabase {
         try {
             Statement statement = connection.createStatement();
             statement.executeUpdate("DELETE FROM Events WHERE id='"+id+"'");
-        } catch (SQLException e) {
-            return false;
-        }
-        return true;
-    }
-
-    @Override
-    public boolean delete(String name) {
-        try {
-            Statement statement = connection.createStatement();
-            statement.executeUpdate("DELETE FROM Events WHERE name='"+name+"'");
         } catch (SQLException e) {
             return false;
         }
@@ -143,10 +115,11 @@ public class SQLiteDatabase implements EventDatabase {
     }
 
     private Event make(ResultSet rs) throws SQLException {
+        String id = rs.getString("id");
         String name = rs.getString("name");
         String ownerId = rs.getString("ownerID");
         String ownerUsername = rs.getString("ownerUsername");
 
-        return Event.create(name, ownerId, ownerUsername);
+        return Event.create(id, name, ownerId, ownerUsername);
     }
 }
