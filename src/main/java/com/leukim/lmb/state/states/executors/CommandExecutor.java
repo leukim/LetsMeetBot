@@ -1,5 +1,7 @@
 package com.leukim.lmb.state.states.executors;
 
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.leukim.lmb.Services;
 import com.leukim.lmb.database.Event;
@@ -10,9 +12,12 @@ import com.leukim.lmb.state.states.InitialState;
 import com.leukim.lmb.state.states.State;
 import org.telegram.telegrambots.api.methods.SendMessage;
 import org.telegram.telegrambots.api.objects.Message;
+import org.telegram.telegrambots.api.objects.ReplyKeyboard;
+import org.telegram.telegrambots.api.objects.ReplyKeyboardMarkup;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Base class for al command executors to extend, providing some utility methods.
@@ -64,6 +69,8 @@ public abstract class CommandExecutor {
         }
 
         SendMessage reply = makeResponse(command.message, replyText.toString());
+        reply.setReplayMarkup(getCustomKeyBoard(params));
+
         State nextState;
         try {
             nextState = (State) nextStateClass.newInstance();
@@ -72,5 +79,17 @@ public abstract class CommandExecutor {
         }
         nextState.setParams(params);
         return new Result(nextState, reply);
+    }
+
+    private ReplyKeyboardMarkup getCustomKeyBoard(Map<String, String> params) {
+        ReplyKeyboardMarkup replyKeyboard = new ReplyKeyboardMarkup();
+        replyKeyboard.setOneTimeKeyboad(true);
+
+        //List<String> keyboardList = params.keySet().stream().collect(Collectors.toList());
+        List<List<String>> keyboardEntries = params.keySet().stream().map(Lists::newArrayList).collect(Collectors.toList());
+        //keyboardEntries.add(keyboardList);
+        replyKeyboard.setKeyboard(keyboardEntries);
+
+        return replyKeyboard;
     }
 }
