@@ -5,6 +5,7 @@ import com.leukim.lmb.database.EventDatabase;
 import com.leukim.lmb.state.Command;
 import com.leukim.lmb.state.Result;
 import com.leukim.lmb.state.states.InitialState;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Map;
 
@@ -25,6 +26,10 @@ public class DeleteCommandExecutor extends CommandExecutor {
     public Result execute(Command command) {
         EventDatabase database = Services.getInstance().getDatabase();
         String eventToDelete = command.message.getText();
+
+        if (StringUtils.equals(eventToDelete, "Cancel")) {
+            return new Result(new InitialState(), makeResponse(command.message, "Delete canceled"));
+        }
 
         if (params.containsKey(eventToDelete)) {
             Integer idToDelete = Integer.parseInt(params.get(eventToDelete));
