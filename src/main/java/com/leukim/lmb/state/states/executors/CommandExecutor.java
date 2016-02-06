@@ -1,6 +1,5 @@
 package com.leukim.lmb.state.states.executors;
 
-import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.leukim.lmb.Services;
@@ -12,7 +11,6 @@ import com.leukim.lmb.state.states.InitialState;
 import com.leukim.lmb.state.states.State;
 import org.telegram.telegrambots.api.methods.SendMessage;
 import org.telegram.telegrambots.api.objects.Message;
-import org.telegram.telegrambots.api.objects.ReplyKeyboard;
 import org.telegram.telegrambots.api.objects.ReplyKeyboardMarkup;
 
 import java.util.List;
@@ -85,9 +83,8 @@ public abstract class CommandExecutor {
         ReplyKeyboardMarkup replyKeyboard = new ReplyKeyboardMarkup();
         replyKeyboard.setOneTimeKeyboad(true);
 
-        //List<String> keyboardList = params.keySet().stream().collect(Collectors.toList());
         List<List<String>> keyboardEntries = params.keySet().stream().map(Lists::newArrayList).collect(Collectors.toList());
-        //keyboardEntries.add(keyboardList);
+        keyboardEntries.add(Lists.newArrayList("Cancel"));
         replyKeyboard.setKeyboard(keyboardEntries);
 
         return replyKeyboard;
