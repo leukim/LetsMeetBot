@@ -9,11 +9,11 @@ import java.util.Optional;
  * Created by miquel on 01/02/16.
  */
 public interface EventDatabase {
-    Optional<Event> get(int id);
+    Optional<Event> get(Integer id);
 
     boolean add(Event event);
 
-    boolean delete(int id);
+    boolean delete(Integer id);
 
     List<Event> list();
 

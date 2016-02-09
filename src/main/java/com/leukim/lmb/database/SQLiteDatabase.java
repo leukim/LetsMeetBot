@@ -36,10 +36,11 @@ public class SQLiteDatabase implements EventDatabase {
     }
 
     @Override
-    public Optional<Event> get(int id) {
+    public Optional<Event> get(Integer id) {
         try {
-            Statement statement = connection.createStatement();
-            ResultSet rs = statement.executeQuery("SELECT * FROM Events WHERE id='"+id+"'");
+            PreparedStatement statement = connection.prepareStatement("SELECT * FROM Events WHERE id=?");
+            statement.setInt(1, id);
+            ResultSet rs = statement.executeQuery();
 
             if (rs.next()) {
                 Event event = make(rs);
@@ -55,8 +56,11 @@ public class SQLiteDatabase implements EventDatabase {
     @Override
     public boolean add(Event event) {
         try {
-            Statement statement = connection.createStatement();
-            statement.executeUpdate("INSERT INTO Events VALUES (NULL,'"+event.getName()+"','"+event.getOwnerID()+"','"+event.getOwnerUsername()+"')");
+            PreparedStatement statement = connection.prepareStatement("INSERT INTO Events (name, ownerID, ownerUsername) VALUES (?,?,?)");
+            statement.setString(1, event.getName());
+            statement.setString(2, event.getOwnerID());
+            statement.setString(3, event.getOwnerUsername());
+            statement.executeUpdate();
         } catch (SQLException e) {
             return false;
         }
@@ -64,10 +68,11 @@ public class SQLiteDatabase implements EventDatabase {
     }
 
     @Override
-    public boolean delete(int id) {
+    public boolean delete(Integer id) {
         try {
-            Statement statement = connection.createStatement();
-            statement.executeUpdate("DELETE FROM Events WHERE id='"+id+"'");
+            PreparedStatement statement = connection.prepareStatement("DELETE FROM Events WHERE id=?");
+            statement.setInt(1, id);
+            statement.executeUpdate();
         } catch (SQLException e) {
             return false;
         }
@@ -106,8 +111,9 @@ public class SQLiteDatabase implements EventDatabase {
     @Override
     public boolean deleteAllFrom(String userID) {
         try {
-            Statement statement = connection.createStatement();
-            statement.executeUpdate("DELETE FROM Events WHERE ownerID='"+userID+"'");
+            PreparedStatement statement = connection.prepareStatement("DELETE FROM Events WHERE ownerID=?");
+            statement.setString(1, userID);
+            statement.executeUpdate();
         } catch (SQLException e) {
             return false;
         }
