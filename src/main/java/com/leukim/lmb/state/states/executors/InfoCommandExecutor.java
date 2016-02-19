@@ -1,15 +1,11 @@
 package com.leukim.lmb.state.states.executors;
 
-import com.leukim.lmb.Services;
 import com.leukim.lmb.database.Event;
-import com.leukim.lmb.database.EventDatabase;
 import com.leukim.lmb.state.Command;
 import com.leukim.lmb.state.Result;
 import com.leukim.lmb.state.states.InitialState;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * Command executor that retrieves and displays the information of a single Event.
@@ -26,24 +22,16 @@ public class InfoCommandExecutor extends CommandExecutor {
 
     @Override
     public Result execute(Command command) {
-        EventDatabase database = Services.getInstance().getDatabase();
-        String eventToRetrieve = command.message.getText();
+        try {
 
-        if (StringUtils.equals(eventToRetrieve, "Cancel")) {
-            return new Result(new InitialState(), makeResponse(command.message, "Command canceled"));
-        }
-
-        if (params.containsKey(eventToRetrieve)) {
-            Integer idToRetrieve = Integer.parseInt(params.get(eventToRetrieve));
-            Optional<Event> eventOptional = database.get(idToRetrieve);
-            if (!eventOptional.isPresent()) {
-                return new Result(new InitialState(), makeResponse(command.message, "Could not retrieve selected event."));
-            }
-            Event event = eventOptional.get();
-            String replyText = "Event *" + event.getName() + "* created by *" + event.getOwnerUsernameOrID() + "*.";
+            Event event = collectSelectedEvent(command, params);
+            String replyText = event.toString();//"Event *" + event.getName() + "* created by *" + event.getOwnerUsernameOrID() + "*.";
 
             return new Result(new InitialState(), makeResponseWithMarkdown(command.message, replyText));
-        } else {
+
+        } catch (CancelWorkflowException e) {
+            return new Result(new InitialState(), makeResponse(command.message, "Command canceled"));
+        } catch (EventNotFoundException e) {
             return new Result(new InitialState(), makeResponse(command.message, "Input was not recognised as event number."));
         }
     }

@@ -1,11 +1,11 @@
 package com.leukim.lmb.state.states.executors;
 
 import com.leukim.lmb.Services;
+import com.leukim.lmb.database.Event;
 import com.leukim.lmb.database.EventDatabase;
 import com.leukim.lmb.state.Command;
 import com.leukim.lmb.state.Result;
 import com.leukim.lmb.state.states.InitialState;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.Map;
 
@@ -24,25 +24,23 @@ public class DeleteCommandExecutor extends CommandExecutor {
 
     @Override
     public Result execute(Command command) {
+        Event event;
+        try {
+            event = collectSelectedEvent(command,params);
+        } catch (CancelWorkflowException e) {
+            return resetState(command.message, "Command cancelled");
+        } catch (EventNotFoundException e) {
+            return resetState(command.message, "Event not found.");
+        }
+
         EventDatabase database = Services.getInstance().getDatabase();
-        String eventToDelete = command.message.getText();
-
-        if (StringUtils.equals(eventToDelete, "Cancel")) {
-            return new Result(new InitialState(), makeResponse(command.message, "Delete canceled"));
-        }
-
-        if (params.containsKey(eventToDelete)) {
-            Integer idToDelete = Integer.parseInt(params.get(eventToDelete));
-            boolean success = database.delete(idToDelete);
-            String replyText;
-            if (success) {
-                replyText = "Event deleted.";
-            } else {
-                replyText = "Error deleting event.";
-            }
-            return new Result(new InitialState(),makeResponse(command.message, replyText));
+        Integer idToDelete = Integer.parseInt(event.getId());
+        String replyText;
+        if (database.delete(idToDelete)) {
+            replyText = "Event deleted.";
         } else {
-            return new Result(new InitialState(), makeResponse(command.message, "Input was not recognised as event number."));
+            replyText = "Error deleting event.";
         }
+        return new Result(new InitialState(),makeResponse(command.message, replyText));
     }
 }

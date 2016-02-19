@@ -9,12 +9,14 @@ import com.leukim.lmb.state.Command;
 import com.leukim.lmb.state.Result;
 import com.leukim.lmb.state.states.InitialState;
 import com.leukim.lmb.state.states.State;
+import org.apache.commons.lang3.StringUtils;
 import org.telegram.telegrambots.api.methods.SendMessage;
 import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.api.objects.ReplyKeyboardMarkup;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -89,4 +91,34 @@ public abstract class CommandExecutor {
 
         return replyKeyboard;
     }
+
+    protected Result resetState(Message message, String replyText) {
+        return new Result(new InitialState(), makeResponse(message, replyText));
+    }
+
+    protected Event collectSelectedEvent(Command command, Map<String, String> params) throws CancelWorkflowException, EventNotFoundException {
+        EventDatabase database = Services.getInstance().getDatabase();
+        String eventToRetrieve = command.message.getText();
+
+        if (StringUtils.equals(eventToRetrieve, "Cancel")) {
+            throw new CancelWorkflowException();
+        }
+
+        if (!params.containsKey(eventToRetrieve)) {
+            throw new EventNotFoundException();
+        }
+
+        Integer idToRetrieve = Integer.parseInt(params.get(eventToRetrieve));
+
+        Optional<Event> eventOptional = database.get(idToRetrieve);
+
+        if (!eventOptional.isPresent()) {
+            throw new EventNotFoundException();
+        }
+
+        return eventOptional.get();
+    }
+
+    protected class CancelWorkflowException extends Exception {}
+    protected class EventNotFoundException extends Exception {}
 }

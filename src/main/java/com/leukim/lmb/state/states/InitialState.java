@@ -52,6 +52,14 @@ public class InitialState extends State {
                     }
                 };
                 break;
+            case EDIT:
+                executor = new CommandExecutor() {
+                    @Override
+                    public Result execute(Command command) {
+                        return prepareForCollectEvent(command, "Select event to edit:", EditWaitIdState.class);
+                    }
+                };
+                break;
             case PLAINTEXT:
                 executor = new CommandExecutor() {
                     @Override

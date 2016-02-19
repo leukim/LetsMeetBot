@@ -8,45 +8,26 @@ import java.util.StringTokenizer;
  * Created by miquel on 30/01/16.
  */
 public class Event{
+    // Basic event information
     private String id;
     private String name;
     private String ownerID;
     private String ownerUsername;
+
+    // Extra event information
+    private String location = "";
+    private String time = "";
+    private String description = "";
 
     private Event() {
 
     }
 
     public String toString() {
-        return name + " " + ownerID + " " + ownerUsername;
-    }
-
-    public static Event fromString(String eventString) {
-        StringTokenizer tokenizer = new StringTokenizer(eventString);
-
-        if (!tokenizer.hasMoreTokens()) {
-            return null;
-        }
-
-        String eventName = tokenizer.nextToken();
-
-        if (!tokenizer.hasMoreTokens()) {
-            return null;
-        }
-
-        String eventOwnerID = tokenizer.nextToken();
-
-        if (!tokenizer.hasMoreTokens()) {
-            return null;
-        }
-
-        String eventOwnerUsername = tokenizer.nextToken();
-
-        Event event = new Event();
-        event.name = eventName;
-        event.ownerID = eventOwnerID;
-        event.ownerUsername = eventOwnerUsername;
-        return event;
+        return "Event *" + name + "* created by *" + getOwnerUsernameOrID() +
+                "*.\n\tLocation: " + location +
+                "\n\tTime: " + time +
+                "\n\tDescription: " + description;
     }
 
     public static Event create(String id, String name, String ownerID, String ownerUsername) {
@@ -55,6 +36,14 @@ public class Event{
         event.name = name;
         event.ownerID = ownerID;
         event.ownerUsername = ownerUsername;
+        return event;
+    }
+
+    public static Event create(String id, String name, String ownerID, String ownerUsername, String location, String time, String description) {
+        Event event = create(id, name, ownerID, ownerUsername);
+        event.location = location;
+        event.time = time;
+        event.description = description;
         return event;
     }
 

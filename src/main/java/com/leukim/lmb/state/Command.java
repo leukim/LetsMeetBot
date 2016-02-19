@@ -28,6 +28,6 @@ public class Command {
     }
 
     public enum Type {
-        UNKNOWN, PLAINTEXT, START, LIST, CREATE, DELETE, REMOVE, INFO
+        UNKNOWN, PLAINTEXT, START, LIST, CREATE, DELETE, REMOVE, INFO, EDIT
     }
 }
