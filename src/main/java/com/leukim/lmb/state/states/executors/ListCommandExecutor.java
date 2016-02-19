@@ -27,13 +27,14 @@ public class ListCommandExecutor extends CommandExecutor {
 
         StringBuilder replyText = new StringBuilder("Event list:");
 
-        for (int i = 0; i < events.size(); i++) {
-            Event e = events.get(i);
+        int index = 1;
+        for (Event e : events) {
             if (e.getOwnerID().equals(command.message.getFrom().getId().toString())) {
                 replyText.append("\n\t");
-                replyText.append(i);
+                replyText.append(index);
                 replyText.append(") ");
                 replyText.append(e.getName());
+                index++;
             }
         }
 
