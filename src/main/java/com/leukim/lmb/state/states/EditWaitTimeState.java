@@ -12,9 +12,9 @@ public class EditWaitTimeState extends State {
     @Override
     public Result process(Message message) {
         String time = message.getText();
+        params.put("time", time);
         State nextState = new EditWaitDescriptionState();
         nextState.params = params;
-        params.put("time", time);
 
         return new Result(nextState, makeResponse(message, "Set a description for the event"));
     }

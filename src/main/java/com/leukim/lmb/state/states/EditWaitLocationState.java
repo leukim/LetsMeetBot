@@ -11,11 +11,10 @@ import org.telegram.telegrambots.api.objects.Message;
 public class EditWaitLocationState extends State {
     @Override
     public Result process(Message message) {
-
         String location = message.getText();
+        params.put("location", location);
         State nextState = new EditWaitTimeState();
         nextState.params = params;
-        params.put("location", location);
 
         return new Result(nextState, makeResponse(message, "Set a time/date for the event (dd/mm/yy [hh:mm])"));
     }
