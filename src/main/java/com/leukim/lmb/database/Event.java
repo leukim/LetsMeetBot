@@ -1,7 +1,5 @@
 package com.leukim.lmb.database;
 
-import java.util.StringTokenizer;
-
 /**
  * Class representing an Event in the database.
  *
@@ -67,7 +65,7 @@ public class Event{
         return ownerUsername != null && !ownerUsername.isEmpty();
     }
 
-    public String getOwnerUsernameOrID() {
+    private String getOwnerUsernameOrID() {
         return hasOwnerUsername() ? ownerUsername : ownerID;
     }
 }

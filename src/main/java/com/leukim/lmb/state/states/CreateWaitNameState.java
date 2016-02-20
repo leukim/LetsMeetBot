@@ -1,8 +1,10 @@
 package com.leukim.lmb.state.states;
 
+import com.leukim.lmb.Services;
+import com.leukim.lmb.database.Event;
+import com.leukim.lmb.database.EventDatabase;
 import com.leukim.lmb.state.Result;
-import com.leukim.lmb.state.states.executors.CommandExecutor;
-import com.leukim.lmb.state.states.executors.CreateCommandExecutor;
+import org.telegram.telegrambots.api.methods.SendMessage;
 import org.telegram.telegrambots.api.objects.Message;
 
 /**
@@ -13,7 +15,16 @@ import org.telegram.telegrambots.api.objects.Message;
 public class CreateWaitNameState extends State {
     @Override
     public Result process(Message message) {
-        CommandExecutor executor = new CreateCommandExecutor();
-        return executor.execute(parseMessage(message));
+        Event event = Event.create(null,message.getText(), message.getFrom().getId().toString(), message.getFrom().getUserName());
+        EventDatabase database = Services.getInstance().getDatabase();
+        boolean success = database.add(event);
+        SendMessage reply;
+        if (success) {
+            reply = makeResponse(message, "Created event " + event.getName());
+        } else {
+            reply = makeResponse(message, "Could not create event.");
+        }
+
+        return new Result(new InitialState(), reply);
     }
 }

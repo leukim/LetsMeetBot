@@ -45,11 +45,11 @@ public class LetsMeetBot extends TelegramLongPollingBot {
 
     @Override
     public String getBotUsername() {
-        return "<name>";
+        return "letsmeetbot";
     }
 
     @Override
     public String getBotToken() {
-        return "<token>";
+        return "32582688:AAHM6k-jryRBP8ExI5aXK8CqcsImnEbT7go";
     }
 }

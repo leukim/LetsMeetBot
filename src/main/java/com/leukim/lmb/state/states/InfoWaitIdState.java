@@ -1,9 +1,7 @@
 package com.leukim.lmb.state.states;
 
-import com.leukim.lmb.state.Command;
+import com.leukim.lmb.database.Event;
 import com.leukim.lmb.state.Result;
-import com.leukim.lmb.state.states.executors.CommandExecutor;
-import com.leukim.lmb.state.states.executors.InfoCommandExecutor;
 import org.telegram.telegrambots.api.objects.Message;
 
 /**
@@ -14,8 +12,17 @@ import org.telegram.telegrambots.api.objects.Message;
 public class InfoWaitIdState extends State {
     @Override
     public Result process(Message message) {
-        CommandExecutor executor = new InfoCommandExecutor(params);
-        Command command = parseMessage(message);
-        return executor.execute(command);
+        try {
+
+            Event event = collectSelectedEvent(message, params);
+            String replyText = event.toString();
+
+            return new Result(new InitialState(), makeResponseWithMarkdown(message, replyText));
+
+        } catch (CancelWorkflowException e) {
+            return new Result(new InitialState(), makeResponse(message, "Command canceled"));
+        } catch (EventNotFoundException e) {
+            return new Result(new InitialState(), makeResponse(message, "Input was not recognised as event number."));
+        }
     }
 }

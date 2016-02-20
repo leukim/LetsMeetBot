@@ -1,9 +1,9 @@
 package com.leukim.lmb.state.states;
 
-import com.leukim.lmb.state.Command;
+import com.leukim.lmb.Services;
+import com.leukim.lmb.database.Event;
+import com.leukim.lmb.database.EventDatabase;
 import com.leukim.lmb.state.Result;
-import com.leukim.lmb.state.states.executors.CommandExecutor;
-import com.leukim.lmb.state.states.executors.DeleteCommandExecutor;
 import org.telegram.telegrambots.api.objects.Message;
 
 /**
@@ -14,8 +14,23 @@ import org.telegram.telegrambots.api.objects.Message;
 public class DeleteWaitIdState extends State {
     @Override
     public Result process(Message message) {
-        CommandExecutor executor = new DeleteCommandExecutor(params);
-        Command command = parseMessage(message);
-        return executor.execute(command);
+        Event event;
+        try {
+            event = collectSelectedEvent(message, params);
+        } catch (CancelWorkflowException e) {
+            return resetState(message, "Command cancelled");
+        } catch (EventNotFoundException e) {
+            return resetState(message, "Event not found.");
+        }
+
+        EventDatabase database = Services.getInstance().getDatabase();
+        Integer idToDelete = Integer.parseInt(event.getId());
+        String replyText;
+        if (database.delete(idToDelete)) {
+            replyText = "Event deleted.";
+        } else {
+            replyText = "Error deleting event.";
+        }
+        return new Result(new InitialState(),makeResponse(message, replyText));
     }
 }
