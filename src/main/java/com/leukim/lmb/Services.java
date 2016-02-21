@@ -2,7 +2,6 @@ package com.leukim.lmb;
 
 import com.leukim.lmb.database.EventDatabase;
 import com.leukim.lmb.database.SQLiteDatabase;
-import org.telegram.telegrambots.TelegramApiException;
 
 /**
  * Singleton object containing service classes.
@@ -18,7 +17,7 @@ public class Services {
     private Services() {
         try {
             database = new SQLiteDatabase();
-        } catch (TelegramApiException e) {
+        } catch (LMBException e) {
             e.printStackTrace();
         }
     }

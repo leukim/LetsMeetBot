@@ -1,8 +1,8 @@
 package com.leukim.lmb.database;
 
 import com.google.common.collect.Lists;
+import com.leukim.lmb.LMBException;
 import org.apache.commons.lang3.StringUtils;
-import org.telegram.telegrambots.TelegramApiException;
 
 import java.sql.*;
 import java.util.List;
@@ -17,7 +17,7 @@ public class SQLiteDatabase implements EventDatabase {
 
     private Connection connection;
 
-    public SQLiteDatabase() throws TelegramApiException {
+    public SQLiteDatabase() throws LMBException {
         try {
             Class.forName("org.sqlite.JDBC");
 
@@ -30,9 +30,9 @@ public class SQLiteDatabase implements EventDatabase {
 
             statement.executeUpdate("CREATE TABLE IF NOT EXISTS Events (id INTEGER PRIMARY KEY, name TEXT, ownerID TEXT, ownerUsername TEXT, location TEXT, time TEXT, description TEXT)");
         } catch (ClassNotFoundException e) {
-            throw new TelegramApiException("Could not load the database driver", e);
+            throw new LMBException("Could not load the database driver", e);
         } catch (SQLException e) {
-            throw new TelegramApiException("There was an exception in the SQL driver", e);
+            throw new LMBException("There was an exception in the SQL driver", e);
         }
     }
 
