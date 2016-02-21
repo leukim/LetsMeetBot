@@ -16,7 +16,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.StringTokenizer;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Base class for the different bot states to extend from, and which provides some utility methods.
@@ -95,6 +97,7 @@ public abstract class State {
         StringBuilder replyText = new StringBuilder(headerText);
 
         Map<String, String> params = Maps.newHashMap();
+        Map<String, String> names = Maps.newHashMap();
         Integer order = 1;
         for (Event e : events) {
             if (e.getOwnerID().equals(command.message.getFrom().getId().toString())) {
@@ -104,12 +107,13 @@ public abstract class State {
                 replyText.append(e.getName());
 
                 params.put(order.toString(),e.getId());
+                names.put(order.toString(),e.getName());
                 order++;
             }
         }
 
         SendMessage reply = makeResponse(command.message, replyText.toString());
-        reply.setReplayMarkup(getCustomKeyBoard(params));
+        reply.setReplayMarkup(getCustomKeyBoard(params, names));
 
         State nextState;
         try {
@@ -121,11 +125,21 @@ public abstract class State {
         return new Result(nextState, reply);
     }
 
-    private ReplyKeyboardMarkup getCustomKeyBoard(Map<String, String> params) {
+    private ReplyKeyboardMarkup getCustomKeyBoard(Map<String, String> params, Map<String, String> names) {
+
+        List<String> paramList = params.entrySet().stream().map(Map.Entry::getValue).collect(Collectors.toList());
+        List<String> namesList = names.entrySet().stream().map(Map.Entry::getValue).collect(Collectors.toList());
+
         ReplyKeyboardMarkup replyKeyboard = new ReplyKeyboardMarkup();
         replyKeyboard.setOneTimeKeyboad(true);
 
-        List<List<String>> keyboardEntries = params.keySet().stream().map(Lists::newArrayList).collect(Collectors.toList());
+        List<List<String>> keyboardEntries = Lists.newArrayList();
+
+        for (int i = 0; i < params.size(); i++) {
+            List<String> entry = Lists.newArrayList(paramList.get(i) + " " + namesList.get(i));
+            keyboardEntries.add(entry);
+        }
+
         keyboardEntries.add(Lists.newArrayList("Cancel"));
         replyKeyboard.setKeyboard(keyboardEntries);
 
@@ -138,7 +152,13 @@ public abstract class State {
 
     Event collectSelectedEvent(Message message, Map<String, String> params) throws CancelWorkflowException, EventNotFoundException {
         EventDatabase database = Services.getInstance().getDatabase();
-        String eventToRetrieve = message.getText();
+        String[] tokens = message.getText().split(" ");
+
+        if (tokens.length < 1) {
+            throw new EventNotFoundException();
+        }
+
+        String eventToRetrieve = tokens[0];
 
         if (StringUtils.equals(eventToRetrieve, "Cancel")) {
             throw new CancelWorkflowException();
