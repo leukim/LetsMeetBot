@@ -13,6 +13,8 @@ public class Services {
     private static Services instance;
 
     private EventDatabase database;
+    public static String botName = "<name>";
+    public static String botToken = "<token>";
 
     private Services() {
         try {
