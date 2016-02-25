@@ -27,8 +27,7 @@ public class LetsMeetBot extends TelegramLongPollingBot {
             Message message = update.getMessage();
             SendMessage reply;
             if (message.hasText()) {
-                Long chatID = message.getChatId();
-                Conversation conversation = status.getConversationOrNew(chatID);
+                Conversation conversation = status.getConversationOrNew(message.getChat());
                 reply = conversation.process(message);
             } else {
                 reply = new SendMessage();
@@ -45,11 +44,11 @@ public class LetsMeetBot extends TelegramLongPollingBot {
 
     @Override
     public String getBotUsername() {
-        return "letsmeetbot";
+        return Services.botName;
     }
 
     @Override
     public String getBotToken() {
-        return "<token>";
+        return Services.botToken;
     }
 }
