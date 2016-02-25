@@ -16,9 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.StringTokenizer;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Base class for the different bot states to extend from, and which provides some utility methods.
@@ -33,6 +31,11 @@ public abstract class State {
     Command parseMessage(Message message) {
         if (message.hasText()) {
             String messageText = message.getText();
+
+            if (StringUtils.contains(messageText, "@"+Services.botName)) {
+                messageText = StringUtils.replace(messageText, "@"+Services.botName, "");
+            }
+
             if (isCommand(messageText)) {
                 StringTokenizer tokenizer = new StringTokenizer(messageText);
 
@@ -85,22 +88,29 @@ public abstract class State {
         return innerMakeResponse(message, response, true);
     }
 
-    Result prepareForCollectEvent(Command command, String headerText, Class nextStateClass) {
+    Result prepareForCollectEvent(Message message, String headerText, Class nextStateClass) {
+
+        String replyToUsername = message.getFrom().getUserName();
+
+        if (replyToUsername == null) {
+            return errorNoUsername(message);
+        }
+
         EventDatabase database = Services.getInstance().getDatabase();
         List<Event> events = database.list();
 
         if (events.isEmpty()) {
-            SendMessage reply = makeResponse(command.message,"No events found.");
-            return new Result(command.state, reply);
+            SendMessage reply = makeResponse(message,"No events found.");
+            return new Result(new InitialState(), reply);
         }
 
-        StringBuilder replyText = new StringBuilder(headerText);
+        StringBuilder replyText = new StringBuilder("@" + replyToUsername + "\n" + headerText);
 
         Map<String, String> params = Maps.newHashMap();
         Map<String, String> names = Maps.newHashMap();
         Integer order = 1;
         for (Event e : events) {
-            if (e.getOwnerID().equals(command.message.getFrom().getId().toString())) {
+            if (e.getConversation().equals(message.getChat().getId().toString())) {
                 replyText.append("\n\t");
                 replyText.append(order);
                 replyText.append(") ");
@@ -112,8 +122,8 @@ public abstract class State {
             }
         }
 
-        SendMessage reply = makeResponse(command.message, replyText.toString());
-        reply.setReplayMarkup(getCustomKeyBoard(params, names));
+        SendMessage reply = makeResponse(message, replyText.toString());
+        reply.setReplayMarkup(getCustomKeyBoard(names));
 
         State nextState;
         try {
@@ -125,18 +135,18 @@ public abstract class State {
         return new Result(nextState, reply);
     }
 
-    private ReplyKeyboardMarkup getCustomKeyBoard(Map<String, String> params, Map<String, String> names) {
+    private ReplyKeyboardMarkup getCustomKeyBoard(Map<String, String> names) {
 
-        List<String> paramList = params.entrySet().stream().map(Map.Entry::getValue).collect(Collectors.toList());
         List<String> namesList = names.entrySet().stream().map(Map.Entry::getValue).collect(Collectors.toList());
 
         ReplyKeyboardMarkup replyKeyboard = new ReplyKeyboardMarkup();
         replyKeyboard.setOneTimeKeyboad(true);
+        replyKeyboard.setSelective(true);
 
         List<List<String>> keyboardEntries = Lists.newArrayList();
 
-        for (int i = 0; i < params.size(); i++) {
-            List<String> entry = Lists.newArrayList(paramList.get(i) + " " + namesList.get(i));
+        for (int i = 0; i < names.size(); i++) {
+            List<String> entry = Lists.newArrayList((i + 1) + " " + namesList.get(i));
             keyboardEntries.add(entry);
         }
 
@@ -148,6 +158,10 @@ public abstract class State {
 
     Result resetState(Message message, String replyText) {
         return new Result(new InitialState(), makeResponse(message, replyText));
+    }
+
+    Result errorNoUsername(Message message) {
+        return new Result(new InitialState(), makeResponse(message, "This functionality is only available to users with a Telegram username."));
     }
 
     Event collectSelectedEvent(Message message, Map<String, String> params) throws CancelWorkflowException, EventNotFoundException {

@@ -2,7 +2,9 @@ package com.leukim.lmb.state;
 
 import com.leukim.lmb.state.states.InitialState;
 import com.leukim.lmb.state.states.State;
+import com.leukim.lmb.state.states.UnsupportedState;
 import org.telegram.telegrambots.api.methods.SendMessage;
+import org.telegram.telegrambots.api.objects.Chat;
 import org.telegram.telegrambots.api.objects.Message;
 
 /**
@@ -14,8 +16,14 @@ public class Conversation {
 
     private State state;
 
-    public Conversation() {
-        state = new InitialState();
+    public Conversation(Chat chat) {
+        if (chat.isUserChat()) {
+            state = new UnsupportedState();
+        } else if (chat.isGroupChat() || chat.isGroupChat()) {
+            state = new InitialState();
+        } else {
+            state = new UnsupportedState();
+        }
     }
 
     public SendMessage process(Message message) {

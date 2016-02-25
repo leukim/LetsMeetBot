@@ -9,8 +9,7 @@ public class Event{
     // Basic event information
     private String id;
     private String name;
-    private String ownerID;
-    private String ownerUsername;
+    private String conversation;
 
     // Extra event information
     private String location = "";
@@ -22,23 +21,22 @@ public class Event{
     }
 
     public String toString() {
-        return "Event *" + name + "* created by *" + getOwnerUsernameOrID() +
+        return "Event *" + name + "* in conversation *" + conversation +
                 "*.\n\tLocation: " + location +
                 "\n\tTime: " + time +
                 "\n\tDescription: " + description;
     }
 
-    public static Event create(String id, String name, String ownerID, String ownerUsername) {
+    public static Event create(String id, String name, String conversation) {
         Event event = new Event();
         event.id = id;
         event.name = name;
-        event.ownerID = ownerID;
-        event.ownerUsername = ownerUsername;
+        event.conversation = conversation;
         return event;
     }
 
-    public static Event create(String id, String name, String ownerID, String ownerUsername, String location, String time, String description) {
-        Event event = create(id, name, ownerID, ownerUsername);
+    public static Event create(String id, String name, String conversation, String location, String time, String description) {
+        Event event = create(id, name, conversation);
         event.location = location;
         event.time = time;
         event.description = description;
@@ -53,19 +51,7 @@ public class Event{
         return name;
     }
 
-    public String getOwnerID() {
-        return ownerID;
-    }
-
-    public String getOwnerUsername() {
-        return ownerUsername;
-    }
-
-    private boolean hasOwnerUsername() {
-        return ownerUsername != null && !ownerUsername.isEmpty();
-    }
-
-    private String getOwnerUsernameOrID() {
-        return hasOwnerUsername() ? ownerUsername : ownerID;
+    public String getConversation() {
+        return conversation;
     }
 }

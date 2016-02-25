@@ -6,6 +6,7 @@ import com.leukim.lmb.database.EventDatabase;
 import com.leukim.lmb.state.Command;
 import com.leukim.lmb.state.Result;
 import org.telegram.telegrambots.api.methods.SendMessage;
+import org.telegram.telegrambots.api.objects.ForceReplyKeyboard;
 import org.telegram.telegrambots.api.objects.Message;
 
 import java.util.List;
@@ -43,7 +44,7 @@ public class InitialState extends State {
 
                 int index = 1;
                 for (Event e : events) {
-                    if (e.getOwnerID().equals(command.message.getFrom().getId().toString())) {
+                    if (e.getConversation().equals(command.message.getChat().getId().toString())) {
                         replyText.append("\n\t");
                         replyText.append(index);
                         replyText.append(") ");
@@ -56,19 +57,26 @@ public class InitialState extends State {
                 return new Result(command.state, reply);
 
             case CREATE:
-                reply = makeResponse(command.message, "What should we call this Event?");
+                String replyToUsername = message.getFrom().getUserName();
+                if (replyToUsername == null) {
+                    return errorNoUsername(message);
+                }
+                reply = makeResponse(message, "@" + replyToUsername + ", what should we call this Event?");
+                ForceReplyKeyboard kbd = new ForceReplyKeyboard();
+                kbd.setSelective(true);
+                reply.setReplayMarkup(kbd);
                 State nextState = new CreateWaitNameState();
                 return new Result(nextState, reply);
 
             case DELETE:
             case REMOVE:
-                return prepareForCollectEvent(command, "Select event to delete:", DeleteWaitIdState.class);
+                return prepareForCollectEvent(message, "Select event to delete:", DeleteWaitIdState.class);
 
             case INFO:
-                return prepareForCollectEvent(command, "Select event to get the info:", InfoWaitIdState.class);
+                return prepareForCollectEvent(message, "Select event to get the info:", InfoWaitIdState.class);
 
             case EDIT:
-                return prepareForCollectEvent(command, "Select event to edit:", EditWaitIdState.class);
+                return prepareForCollectEvent(message, "Select event to edit:", EditWaitIdState.class);
             case PLAINTEXT:
                 return new Result(command.state, makeResponse(command.message, "Please use a command. Try /start for more information."));
         }

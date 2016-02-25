@@ -15,7 +15,7 @@ import org.telegram.telegrambots.api.objects.Message;
 public class CreateWaitNameState extends State {
     @Override
     public Result process(Message message) {
-        Event event = Event.create(null,message.getText(), message.getFrom().getId().toString(), message.getFrom().getUserName());
+        Event event = Event.create(null,message.getText(), message.getChat().getId().toString());
         EventDatabase database = Services.getInstance().getDatabase();
         boolean success = database.add(event);
         SendMessage reply;

@@ -17,9 +17,5 @@ public interface EventDatabase {
 
     List<Event> list();
 
-    boolean deleteAll();
-
-    boolean deleteAllFrom(String userID);
-
     boolean addInformation(Integer id, String location, String time, String description);
 }

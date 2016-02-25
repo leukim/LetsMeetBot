@@ -28,7 +28,7 @@ public class SQLiteDatabase implements EventDatabase {
             Statement statement = connection.createStatement();
             statement.setQueryTimeout(30);
 
-            statement.executeUpdate("CREATE TABLE IF NOT EXISTS Events (id INTEGER PRIMARY KEY, name TEXT, ownerID TEXT, ownerUsername TEXT, location TEXT, time TEXT, description TEXT)");
+            statement.executeUpdate("CREATE TABLE IF NOT EXISTS Events (id INTEGER PRIMARY KEY, name TEXT, conversation TEXT, location TEXT, time TEXT, description TEXT)");
         } catch (ClassNotFoundException e) {
             throw new LMBException("Could not load the database driver", e);
         } catch (SQLException e) {
@@ -57,10 +57,9 @@ public class SQLiteDatabase implements EventDatabase {
     @Override
     public boolean add(Event event) {
         try {
-            PreparedStatement statement = connection.prepareStatement("INSERT INTO Events (name, ownerID, ownerUsername, location, time, description) VALUES (?,?,?,?,?,?)");
+            PreparedStatement statement = connection.prepareStatement("INSERT INTO Events (name, conversation) VALUES (?,?)");
             statement.setString(1, event.getName());
-            statement.setString(2, event.getOwnerID());
-            statement.setString(3, event.getOwnerUsername());
+            statement.setString(2, event.getConversation());
             statement.executeUpdate();
         } catch (SQLException e) {
             return false;
@@ -99,29 +98,6 @@ public class SQLiteDatabase implements EventDatabase {
     }
 
     @Override
-    public boolean deleteAll() {
-        try {
-            Statement statement = connection.createStatement();
-            statement.executeUpdate("DELETE FROM Events");
-        } catch (SQLException e) {
-            return false;
-        }
-        return true;
-    }
-
-    @Override
-    public boolean deleteAllFrom(String userID) {
-        try {
-            PreparedStatement statement = connection.prepareStatement("DELETE FROM Events WHERE ownerID=?");
-            statement.setString(1, userID);
-            statement.executeUpdate();
-        } catch (SQLException e) {
-            return false;
-        }
-        return true;
-    }
-
-    @Override
     public boolean addInformation(Integer id, String location, String time, String description) {
         try {
             PreparedStatement statement = connection.prepareStatement("UPDATE Events SET location=?, time=?, description=? WHERE id=?");
@@ -139,17 +115,16 @@ public class SQLiteDatabase implements EventDatabase {
     private Event make(ResultSet rs) throws SQLException {
         String id = rs.getString("id");
         String name = rs.getString("name");
-        String ownerId = rs.getString("ownerID");
-        String ownerUsername = rs.getString("ownerUsername");
+        String conversation = rs.getString("conversation");
 
         String location = rs.getString("location");
         String time = rs.getString("time");
         String description = rs.getString("description");
 
         if (StringUtils.isNotEmpty(location) || StringUtils.isNotEmpty(time) || StringUtils.isNotEmpty(description)) {
-            return Event.create(id, name, ownerId, ownerUsername, location, time, description);
+            return Event.create(id, name, conversation, location, time, description);
         } else {
-            return Event.create(id, name, ownerId, ownerUsername);
+            return Event.create(id, name, conversation);
         }
     }
 }

@@ -1,5 +1,7 @@
 package com.leukim.lmb.state;
 
+import org.telegram.telegrambots.api.objects.Chat;
+
 import java.util.HashMap;
 
 /**
@@ -9,18 +11,18 @@ import java.util.HashMap;
  */
 public class BotStatus extends HashMap<Long, Conversation> {
 
-    public Conversation newConversation(Long chatID) {
-        Conversation conversation = new Conversation();
-        put(chatID, conversation);
+    public Conversation newConversation(Chat chat) {
+        Conversation conversation = new Conversation(chat);
+        put(chat.getId(), conversation);
         return conversation;
     }
 
-    public Conversation getConversationOrNew(Long chatID) {
-        if (containsKey(chatID)) {
-            return get(chatID);
+    public Conversation getConversationOrNew(Chat chat) {
+        if (containsKey(chat.getId())) {
+            return get(chat.getId());
         }
 
-        return newConversation(chatID);
+        return newConversation(chat);
     }
 
 }
